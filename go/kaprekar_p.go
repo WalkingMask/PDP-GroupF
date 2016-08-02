@@ -68,15 +68,13 @@ func main() {
 
   // Load distributed processing
   part := N / cpus
-  tasks := make([][]int, cpus)
+  tasks := make([]int, N)
+  for i := 0; i < N; i++ {
+    tasks[i] = i
+  }
 
   for c := 0; c < cpus; c++ {
-    tasks[c] = make([]int, part)
-    for i, v := 0, c*part; v < (c+1)*part; v++ {
-      tasks[c][i] = v
-      i++
-    }
-    go pararelloop(tasks[c], part, ch)
+    go pararelloop(tasks[c*part:(c+1)*part], part, ch)
   }
   <-ch
 
