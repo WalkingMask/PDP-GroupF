@@ -10,14 +10,13 @@ package main
 
 // Packages
 import (
-    "fmt"
-    "strconv"
-    "sort"
-    "strings"
-    "sync"
-    "runtime"
-    "os"
-    "time"
+  "fmt"
+  "os"
+  "runtime"
+  "sort"
+  "strconv"
+  "strings"
+  "time"
 )
 
 // Seek the kaprekar numbers
@@ -28,12 +27,12 @@ func kaprekar(cnt int) {
   // Sort bytes in ascending order
   j := strings.Split(i, "")
   sort.StringSlice(j).Sort()
-  x,_ := strconv.Atoi(strings.Join(j, ""))
+  x, _ := strconv.Atoi(strings.Join(j, ""))
 
   // Sort bytes in descending order
   k := strings.Split(i, "")
   sort.Sort(sort.Reverse(sort.StringSlice(k)))
-  y,_ := strconv.Atoi(strings.Join(k, ""))
+  y, _ := strconv.Atoi(strings.Join(k, ""))
 
   // Print the kaprekar number
   if (y - x) == cnt {
@@ -42,42 +41,43 @@ func kaprekar(cnt int) {
 }
 
 // A goroutine with tasks
-func pararelloop(task []int, l int) {
+func pararelloop(task []int, l int, ch chan bool) {
   for cnt := 0; cnt < l; cnt++ {
     kaprekar(task[cnt])
+  }
+  ch <- true
+  if l == runtime.NumCPU() {
+    close(ch)
   }
 }
 
 // Main
 func main() {
   //
-  start := time.Now();
+  start := time.Now()
 
   // Get the commandline arguments
-  N,_ := strconv.Atoi(os.Args[1])
-  
+  N, _ := strconv.Atoi(os.Args[1])
+
   // Get and set the processers num
   cpus := runtime.NumCPU()
   runtime.GOMAXPROCS(cpus)
 
+  // for goroutine
+  ch := make(chan bool)
+
   // Load distributed processing
-  tasks := make([][]int, cpus)
+  part := N / cpus
+  tasks := make([]int, N)
   for i := 0; i < N; i++ {
-    tasks[i%cpus] = append(tasks[i%cpus], i)
+    tasks[i] = i
   }
 
-  // Start goroutine with waitcontroller
-  var wg sync.WaitGroup
   for c := 0; c < cpus; c++ {
-    wg.Add(1)
-    go func(task []int, l int) {
-      defer wg.Done()
-      pararelloop(task, l)
-    }( tasks[c], N/cpus )
+    go pararelloop(tasks[c*part:(c+1)*part], part, ch)
   }
-  wg.Wait()
+  <-ch
 
-  //
-  end := time.Now();
-  fmt.Printf("%f sec\n",(end.Sub(start)).Seconds())
+  end := time.Now()
+  fmt.Printf("%f sec\n", (end.Sub(start)).Seconds())
 }
