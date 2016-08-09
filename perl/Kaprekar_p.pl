@@ -39,22 +39,32 @@ foreach (@$ref){
  
  $pm->finish; #子プロセスを終了
 }
+#最後のプロセスを待つ為に下記のコードが必要
 $pm->wait_all_children;
 
 }
 
+#カプレカ数を算出する関数を定義
 sub Kaprekar {
 my (@arr,@buf1,@buf2);
-foreach $cnt (@_){
-	@arr = split (//,$cnt);
 
+#与えられた配列分foreachで回している
+foreach $cnt (@_){
+	#渡された配列の要素を1桁ずつ配列に代入
+	@arr = split (//,$cnt);
+	
+	#@arrの中身を昇順にsort
 	@buf1 = sort {$b <=> $a} @arr;
+	#@arrの中身を降順にsort
 	@buf2 = sort {$a <=> $b} @arr;
 	
+	#sortした@arrの配列要素をjoinし数値として参照
 	$num1 = join('', @buf1);
 	$num2 = join('', @buf2);
+	#渡された@arrの要素をjoinし数値として参照
 	$ans_arr = join('', @arr);
 	
+	#カプレカ数判定
 	$numnum = $num1 - $num2;
 
 	if ($numnum == $ans_arr){
