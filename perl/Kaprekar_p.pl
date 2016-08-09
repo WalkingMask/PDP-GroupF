@@ -53,9 +53,9 @@ foreach $cnt (@_){
 	#渡された配列の要素を1桁ずつ配列に代入
 	@arr = split (//,$cnt);
 	
-	#@arrの中身を昇順にsort
-	@buf1 = sort {$b <=> $a} @arr;
 	#@arrの中身を降順にsort
+	@buf1 = sort {$b <=> $a} @arr;
+	#@arrの中身を昇順にsort
 	@buf2 = sort {$a <=> $b} @arr;
 	
 	#sortした@arrの配列要素をjoinし数値として参照
