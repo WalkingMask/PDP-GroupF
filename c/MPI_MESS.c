@@ -84,28 +84,27 @@ int main(int argc, char *argv[])
     
     if (procid == 0)
     {
-        {   for (i = 0; i < mem; i++)
+        for (i = 0; i < mem; i++)
         {
             printf("Kaprekar_number -> %d\n", kap_mem[i]);
         }
+        
+        for (i = 1; i < ntasks; i++)
+        {
+            MPI_Recv(&cnt_mem, 1, MPI_INT, i, i, MPI_COMM_WORLD, &status);
+            MPI_Recv(kap_mem, cnt_mem, MPI_INT, i, i+5, MPI_COMM_WORLD, &status);
             
-            for (i = 1; i < ntasks; i++)
+            for (j = 0; j < cnt_mem; j++)
             {
-                MPI_Recv(&cnt_mem, 1, MPI_INT, i, i, MPI_COMM_WORLD, &status);
-                MPI_Recv(kap_mem, cnt_mem, MPI_INT, i, i+5, MPI_COMM_WORLD, &status);
-                
-                for (j = 0; j < cnt_mem; j++)
-                {
-                    printf("Kaprekar_number -> %d\n", kap_mem[j]);
-                }
-                
-                cnt_mem = 0;
+                printf("Kaprekar_number -> %d\n", kap_mem[j]);
             }
             
-            gettimeofday(&end_time, NULL);
-            
-            printf("---------------\ntotal time -> %f sec\n", (end_time.tv_sec - start_time.tv_sec) + (end_time.tv_usec - start_time.tv_usec)*1.0E-6);
+            cnt_mem = 0;
         }
+        
+        gettimeofday(&end_time, NULL);
+        
+        printf("---------------\ntotal time -> %f sec\n", (end_time.tv_sec - start_time.tv_sec) + (end_time.tv_usec - start_time.tv_usec)*1.0E-6);
     }
     
     MPI_Finalize();
